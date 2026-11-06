@@ -1,0 +1,40 @@
+@baseUrl = https://your-domain.example
+@storeCode = YOUR_STORE_CODE
+@token = YOUR_POS_TOKEN
+
+### Create a tax rule
+POST {{baseUrl}}/api/pos/stores/{{storeCode}}/tax-rules/sync
+Authorization: Bearer {{token}}
+Content-Type: application/json
+
+{
+  "request_id": "tax-rules-20261103-001",
+  "tax_rules": [
+    {
+      "external_tax_id": "TAX-SALES",
+      "name": "Sales Tax",
+      "rate_percent": 8.25,
+      "price_includes_tax": false,
+      "is_active": true
+    }
+  ]
+}
+
+### Update the same tax rule: keep external_tax_id, use a new request_id
+POST {{baseUrl}}/api/pos/stores/{{storeCode}}/tax-rules/sync
+Authorization: Bearer {{token}}
+Content-Type: application/json
+
+{
+  "request_id": "tax-rules-20261103-002",
+  "tax_rules": [
+    {
+      "external_tax_id": "TAX-SALES",
+      "name": "Sales Tax",
+      "rate_percent": 9,
+      "price_includes_tax": false,
+      "is_active": true
+    }
+  ]
+}
+

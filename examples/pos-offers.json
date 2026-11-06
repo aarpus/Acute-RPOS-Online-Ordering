@@ -1,0 +1,20 @@
+{
+  "request_id": "offers-001",
+  "offers": [
+    {
+      "external_offer_id": "OFFER-10-OFF",
+      "offer_name": "10% Off",
+      "description": "Get 10% off when you spend 20 or more.",
+      "offer_type": "percentage",
+      "discount_value": 10,
+      "max_discount": 5,
+      "minimum_order": 20,
+      "offer_code": "SAVE10",
+      "coupon_required": true,
+      "start_at": "2026-11-06T00:00:00+05:30",
+      "end_at": "2026-12-01T00:00:00+05:30",
+      "applicable_channels": ["website", "app"],
+      "is_active": true
+    }
+  ]
+}

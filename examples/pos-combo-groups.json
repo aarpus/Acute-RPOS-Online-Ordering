@@ -1,0 +1,15 @@
+{
+  "request_id": "combo-groups-001",
+  "combo_groups": [
+    {
+      "external_combo_item_id": "COMBO-001",
+      "external_group_id": "COMBO-GRP-DRINKS",
+      "group_name": "Choose a Drink",
+      "selection_type": "selectable",
+      "min_select": 1,
+      "max_select": 1,
+      "is_required": true,
+      "display_order": 1
+    }
+  ]
+}

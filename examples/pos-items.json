@@ -1,0 +1,42 @@
+{
+  "request_id": "items-20261105-001",
+  "items": [
+    {
+      "external_item_id": "ITEM-BURGER",
+      "item_name": "Veg Burger",
+      "item_type": "regular",
+      "sku": "BURGER-001",
+      "description": "Burger with fresh vegetables",
+      "image_url": "/images/burger.jpg",
+      "food_type": "veg",
+      "base_price": 9.99,
+      "compare_price": 11.99,
+      "external_category_ids": ["CAT-BURGERS"],
+      "external_tax_id": "TAX-SALES",
+      "is_featured": true,
+      "is_visible": true,
+      "is_available": true,
+      "display_order": 1,
+      "preparation_time": 15,
+      "allow_special_instructions": true,
+      "special_instructions_max_length": 250,
+      "minimum_quantity": 1,
+      "maximum_quantity": 10,
+      "nutrition_info": {
+        "calories": 350,
+        "protein_g": 12,
+        "carbohydrates_g": 40,
+        "fat_g": 15
+      },
+      "allergens": ["gluten"],
+      "tags": ["popular"],
+      "metadata": {
+        "pos_department": "Kitchen"
+      },
+      "configuration": {
+        "enabled": true,
+        "badge": "New"
+      }
+    }
+  ]
+}

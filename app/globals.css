@@ -1,0 +1,88 @@
+@import "tailwindcss";
+
+/* Shared feedback palette for admin and customer pages. Keep message colors
+   independent of store branding and the admin theme's utility overrides. */
+:root [data-notice-tone] { border:1px solid var(--notice-border)!important; background:var(--notice-bg)!important; color:var(--notice-text)!important; border-radius:6px; padding:10px 14px; font-size:13px; line-height:1.5; }
+[data-notice-tone=success] { --notice-bg:#ecfdf3; --notice-border:#abefc6; --notice-text:#067647; }
+[data-notice-tone=error] { --notice-bg:#fef3f2; --notice-border:#fecdca; --notice-text:#b42318; }
+[data-notice-tone=warning] { --notice-bg:#fffaeb; --notice-border:#fedf89; --notice-text:#93370d; }
+[data-notice-tone=info] { --notice-bg:#eff8ff; --notice-border:#b2ddff; --notice-text:#175cd3; }
+.mw-notice[data-notice-tone] button { color:inherit; }
+.item-gallery button[data-item-image-remove] { display:flex; align-items:center; justify-content:center; gap:5px; padding:6px; border:1px solid #fecdca; border-radius:5px; background:#fef3f2; color:#b42318; font-size:11px; cursor:pointer; }
+.item-gallery button[data-item-image-remove]:hover { background:#fee4e2; }
+.item-gallery button[data-item-image-remove]:focus-visible { outline:2px solid #b42318; outline-offset:2px; }
+
+/* Keep the admin workspace compact and closer to the reference dashboard scale. */
+body:has(aside) h1 {
+  font-size: 1.75rem !important;
+  line-height: 1.2 !important;
+}
+
+body:has(aside) h2 {
+  font-size: 1.125rem !important;
+  line-height: 1.25 !important;
+  font-weight: 700 !important;
+}
+
+/* Keep admin headings at the requested 700 weight, including legacy utility classes. */
+body:has(aside) .font-black,
+body:has(aside) .font-extrabold {
+  font-weight: 700 !important;
+}
+
+body:has(aside) .text-3xl {
+  font-size: 1.75rem !important;
+  line-height: 1.2 !important;
+}
+
+/* Admin brand palette: navy structure with the logo's warm gold accent. */
+body:has(aside) [class*="bg-[#c91d35]"] {
+  background-color: #f5b82e !important;
+  color: #173c6d !important;
+}
+
+body:has(aside) [class*="text-[#c91d35]"] {
+  color: #173c6d !important;
+}
+
+body:has(aside) [class*="bg-red-50"] {
+  background-color: #fff4cf !important;
+}
+
+body:has(aside) [class*="bg-[#f4b0b8]"] {
+  background-color: #f7d77d !important;
+}
+
+body:has(aside) [class*="group-hover:bg-[#c91d35]"]:hover {
+  background-color: #e3a514 !important;
+}
+
+/* Admin login uses the requested 700 weight for extra-bold headings. */
+body:has(input[placeholder="Enter your username"]) h1,
+body:has(input[placeholder="Enter your username"]) [class*="font-extrabold"] {
+  font-weight: 700 !important;
+}
+
+/* All public routes share this scope, including dialogs and checkout/account
+   pages. Tailwind's existing utilities and their hover/focus/checked variants
+   resolve these tokens here; admin pages retain their own palette. */
+.storefront-theme[style] {
+  --color-red-50: color-mix(in srgb, var(--brand-primary) 7%, white);
+  --color-red-100: color-mix(in srgb, var(--brand-primary) 14%, white);
+  --color-red-200: color-mix(in srgb, var(--brand-primary) 28%, white);
+  --color-red-600: var(--brand-primary);
+  --color-red-700: var(--brand-primary);
+  --color-red-800: color-mix(in srgb, var(--brand-primary) 85%, black);
+  --color-red-900: color-mix(in srgb, var(--brand-primary) 70%, black);
+  --color-red-950: color-mix(in srgb, var(--brand-primary) 55%, black);
+  color: var(--brand-primary);
+}
+.storefront-theme[style] > header { background-color: var(--brand-header); border-color: var(--brand-primary); }
+.storefront-theme[style] > footer { background-color: var(--brand-footer); }
+
+.storefront-theme[style] > footer,
+.storefront-theme[style] > footer .text-white,
+.storefront-theme[style] > footer .text-gray-300,
+.storefront-theme[style] > footer .text-gray-500 {
+  color: var(--brand-footer-text, #FFFFFF);
+}

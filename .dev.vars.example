@@ -1,0 +1,12 @@
+DATABASE_URL=postgresql://USER:PASSWORD@HOST:5432/DATABASE?schema=public
+COMPANY_CODE=your-company-code
+ADMIN_USER_ID=123
+SMTP_USER=your-zoho-mailbox@example.com
+SMTP_PASSWORD=your-zoho-app-password
+EMAIL_VERIFICATION_SECRET=replace-with-a-random-secret-at-least-32-characters
+
+# Set bucket name before building/deploying to bind BRANDING_IMAGES.
+R2_BRANDING_BUCKET=online-ordering-branding
+
+# Server-only tenant scope for customer addresses.
+STORE_CODE=your-store-code

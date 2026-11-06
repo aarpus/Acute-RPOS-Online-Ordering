@@ -1,0 +1,5 @@
+ALTER TABLE "tbl_pos_sync_log" DROP CONSTRAINT "sync_values";
+ALTER TABLE "tbl_pos_sync_log" ADD CONSTRAINT "sync_values" CHECK (
+  "sync_type" IN ('HERO_BANNER', 'CATEGORY', 'MENU_CATEGORY', 'MENU_TAX_RULE', 'MENU_MODIFIER_GROUP', 'MENU_ITEM', 'MENU_COMBO_ITEM', 'MENU_VARIANT', 'MENU_MODIFIER_OPTION')
+  AND "sync_status" IN ('SUCCESS', 'FAILED')
+);

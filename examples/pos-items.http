@@ -1,0 +1,73 @@
+@baseUrl = https://your-domain.example
+@storeCode = YOUR_STORE_CODE
+@token = YOUR_POS_TOKEN
+
+### Insert: CAT-BURGERS must already exist in this store
+POST {{baseUrl}}/api/pos/stores/{{storeCode}}/items/sync
+Authorization: Bearer {{token}}
+Content-Type: application/json
+
+{
+  "request_id": "items-20261105-001",
+  "items": [
+    {
+      "external_item_id": "ITEM-BURGER",
+      "item_name": "Veg Burger",
+      "base_price": 9.99,
+      "external_category_ids": ["CAT-BURGERS"],
+      "food_type": "veg",
+      "is_visible": true,
+      "is_available": true
+    }
+  ]
+}
+
+### Update: omitted optional fields, category links and tax stay unchanged
+POST {{baseUrl}}/api/pos/stores/{{storeCode}}/items/sync
+Authorization: Bearer {{token}}
+Content-Type: application/json
+
+{
+  "request_id": "items-20261105-002",
+  "items": [
+    {
+      "external_item_id": "ITEM-BURGER",
+      "item_name": "Veg Burger",
+      "base_price": 10.99
+    }
+  ]
+}
+
+### Change categories and attach tax: both IDs must already exist in this store
+POST {{baseUrl}}/api/pos/stores/{{storeCode}}/items/sync
+Authorization: Bearer {{token}}
+Content-Type: application/json
+
+{
+  "request_id": "items-20261105-003",
+  "items": [
+    {
+      "external_item_id": "ITEM-BURGER",
+      "item_name": "Veg Burger",
+      "external_category_ids": ["CAT-BURGERS", "CAT-SPECIALS"],
+      "external_tax_id": "TAX-SALES"
+    }
+  ]
+}
+
+### Mark unavailable and clear tax; no item is physically deleted
+POST {{baseUrl}}/api/pos/stores/{{storeCode}}/items/sync
+Authorization: Bearer {{token}}
+Content-Type: application/json
+
+{
+  "request_id": "items-20261105-004",
+  "items": [
+    {
+      "external_item_id": "ITEM-BURGER",
+      "item_name": "Veg Burger",
+      "external_tax_id": null,
+      "is_available": false
+    }
+  ]
+}

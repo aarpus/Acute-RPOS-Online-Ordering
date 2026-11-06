@@ -1,0 +1,14 @@
+{
+  "request_id": "combo-001",
+  "combo_items": [
+    {
+      "external_item_id": "COMBO-001",
+      "item_name": "Burger Meal",
+      "description": "Burger, fries અને cold drink",
+      "base_price": 14.99,
+      "external_category_ids": ["CAT-COMBOS"],
+      "is_visible": false,
+      "is_available": false
+    }
+  ]
+}

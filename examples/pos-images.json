@@ -1,0 +1,14 @@
+{
+  "request_id": "images-001",
+  "images": [
+    {
+      "external_item_id": "ITEM-BURGER",
+      "external_image_id": "IMG-BURGER-MAIN",
+      "image_url": "/images/category-0.jpg",
+      "alt_text": "Burger",
+      "is_primary": true,
+      "is_active": true,
+      "display_order": 1
+    }
+  ]
+}

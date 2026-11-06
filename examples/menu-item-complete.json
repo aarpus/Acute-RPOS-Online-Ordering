@@ -1,0 +1,427 @@
+{
+  "operations": [
+    {
+      "resource": "categories",
+      "clientKey": "burgers",
+      "data": {
+        "categoryName": "Burgers & Meals",
+        "externalCategoryId": "CAT-BURGERS-001",
+        "description": "Burgers, sides and meal combos",
+        "imageUrl": "/images/american-menu/cheeseburger.svg",
+        "displayOrder": 0,
+        "isVisible": true,
+        "isActive": true,
+        "configuration": {}
+      }
+    },
+    {
+      "resource": "tax-rules",
+      "clientKey": "food-tax",
+      "data": {
+        "name": "Sample Food Tax",
+        "externalTaxId": "TAX-FOOD-001",
+        "ratePercent": 6,
+        "priceIncludesTax": false,
+        "isActive": true,
+        "configuration": {
+          "description": "Sample rate: replace with your actual tax settings.",
+          "appliesTo": "All Items",
+          "rounding": "No Rounding",
+          "displayOrder": 0,
+          "receipt": true,
+          "delivery": true,
+          "takeaway": true
+        }
+      }
+    },
+    {
+      "resource": "modifier-groups",
+      "clientKey": "burger-extras",
+      "data": {
+        "name": "Burger Extras",
+        "externalGroupId": "MOD-BURGER-001",
+        "description": "Optional extras",
+        "selectionType": "multiple",
+        "minSelect": 0,
+        "maxSelect": 2,
+        "allowOptionQuantity": false,
+        "displayOrder": 0,
+        "isActive": true,
+        "rules": {},
+        "configuration": {
+          "image": "/images/american-menu/cheeseburger.svg"
+        },
+        "children": {
+          "modifier-options": [
+            {
+              "name": "Extra Cheese",
+              "externalOptionId": "EXTRA-CHEESE-001",
+              "price": 1.5,
+              "isDefault": false,
+              "isAvailable": true,
+              "minQuantity": 0,
+              "maxQuantity": 1,
+              "displayOrder": 0,
+              "linkedItemId": null,
+              "metadata": {},
+              "configuration": {
+                "image": "/images/american-menu/cheeseburger.svg"
+              }
+            },
+            {
+              "name": "Extra Patty",
+              "externalOptionId": "EXTRA-PATTY-001",
+              "price": 3,
+              "isDefault": false,
+              "isAvailable": true,
+              "minQuantity": 0,
+              "maxQuantity": 1,
+              "displayOrder": 1,
+              "linkedItemId": null,
+              "metadata": {},
+              "configuration": {
+                "image": "/images/american-menu/cheeseburger.svg"
+              }
+            }
+          ]
+        }
+      }
+    },
+    {
+      "resource": "items",
+      "clientKey": "burger",
+      "data": {
+        "itemName": "Classic Cheeseburger",
+        "externalItemId": "BURGER-001",
+        "sku": "BURGER-001",
+        "description": "Sample description for Classic Cheeseburger. Replace with your actual menu description.",
+        "imageUrl": "/images/american-menu/cheeseburger.svg",
+        "itemType": "regular",
+        "foodType": "non_veg",
+        "basePrice": 10.99,
+        "comparePrice": 12.99,
+        "taxRuleId": "@new:food-tax",
+        "categoryIds": [
+          "@new:burgers"
+        ],
+        "isFeatured": true,
+        "isVisible": true,
+        "isAvailable": true,
+        "displayOrder": 0,
+        "preparationTime": 15,
+        "allowSpecialInstructions": true,
+        "specialInstructionsMaxLength": 250,
+        "minimumQuantity": 1,
+        "maximumQuantity": 10,
+        "nutritionInfo": {},
+        "allergens": [
+          "wheat",
+          "milk"
+        ],
+        "tags": [
+          "sample-menu"
+        ],
+        "metadata": {},
+        "configuration": {
+          "enabled": true,
+          "badge": "Bestseller"
+        }
+      }
+    },
+    {
+      "resource": "items",
+      "clientKey": "fries",
+      "data": {
+        "itemName": "French Fries",
+        "externalItemId": "FRIES-001",
+        "sku": "FRIES-001",
+        "description": "Sample description for French Fries. Replace with your actual menu description.",
+        "imageUrl": "/images/american-menu/french-fries.svg",
+        "itemType": "regular",
+        "foodType": "veg",
+        "basePrice": 3.99,
+        "comparePrice": 5.99,
+        "taxRuleId": "@new:food-tax",
+        "categoryIds": [
+          "@new:burgers"
+        ],
+        "isFeatured": false,
+        "isVisible": true,
+        "isAvailable": true,
+        "displayOrder": 0,
+        "preparationTime": 15,
+        "allowSpecialInstructions": true,
+        "specialInstructionsMaxLength": 250,
+        "minimumQuantity": 1,
+        "maximumQuantity": 10,
+        "nutritionInfo": {},
+        "allergens": [],
+        "tags": [
+          "sample-menu"
+        ],
+        "metadata": {},
+        "configuration": {
+          "enabled": true,
+          "badge": "Bestseller"
+        }
+      }
+    },
+    {
+      "resource": "items",
+      "clientKey": "meal",
+      "data": {
+        "itemName": "Classic Cheeseburger Meal",
+        "externalItemId": "MEAL-001",
+        "sku": "MEAL-001",
+        "description": "One classic cheeseburger and one regular French fries. Optional burger extras are charged separately.",
+        "imageUrl": "/images/american-menu/burger-meal.svg",
+        "itemType": "combo",
+        "foodType": "non_veg",
+        "basePrice": 18.49,
+        "comparePrice": 20.49,
+        "taxRuleId": "@new:food-tax",
+        "categoryIds": [
+          "@new:burgers"
+        ],
+        "isFeatured": true,
+        "isVisible": true,
+        "isAvailable": true,
+        "displayOrder": 0,
+        "preparationTime": 15,
+        "allowSpecialInstructions": true,
+        "specialInstructionsMaxLength": 250,
+        "minimumQuantity": 1,
+        "maximumQuantity": 10,
+        "nutritionInfo": {},
+        "allergens": [
+          "wheat",
+          "milk"
+        ],
+        "tags": [
+          "sample-menu"
+        ],
+        "metadata": {},
+        "configuration": {
+          "enabled": true,
+          "badge": "Bestseller"
+        },
+        "children": {
+          "variants": [
+            {
+              "name": "Regular Meal",
+              "externalVariantId": "MEAL-REGULAR-001",
+              "sku": "MEAL-REG",
+              "price": 18.49,
+              "comparePrice": 20.49,
+              "isDefault": true,
+              "isAvailable": true,
+              "displayOrder": 0,
+              "metadata": {
+                "group": "Size"
+              },
+              "configuration": {
+                "group": "Size",
+                "image": "/images/american-menu/burger-meal.svg"
+              }
+            },
+            {
+              "name": "Large Meal",
+              "externalVariantId": "MEAL-LARGE-001",
+              "sku": "MEAL-LARGE",
+              "price": 21.49,
+              "comparePrice": 23.49,
+              "isDefault": false,
+              "isAvailable": true,
+              "displayOrder": 1,
+              "metadata": {
+                "group": "Size"
+              },
+              "configuration": {
+                "group": "Size",
+                "image": "/images/american-menu/burger-meal.svg"
+              }
+            }
+          ],
+          "images": [
+            {
+              "imageUrl": "/images/american-menu/burger-meal.svg",
+              "altText": "Classic cheeseburger meal",
+              "externalImageId": "IMG-MEAL-001",
+              "displayOrder": 0,
+              "isPrimary": true,
+              "isActive": true,
+              "configuration": {}
+            },
+            {
+              "imageUrl": "/images/american-menu/cheeseburger.svg",
+              "altText": "Classic cheeseburger close-up",
+              "externalImageId": "IMG-MEAL-002",
+              "displayOrder": 1,
+              "isPrimary": false,
+              "isActive": true,
+              "configuration": {}
+            }
+          ],
+          "inventory": [
+            {
+              "variantId": null,
+              "trackInventory": true,
+              "quantityAvailable": 50,
+              "lowStockThreshold": 5,
+              "allowBackorder": false,
+              "stockStatus": "in_stock",
+              "configuration": {
+                "unit": "Piece",
+                "reorder": 20,
+                "cost": 8,
+                "email": "inventory@example.com",
+                "alert": false,
+                "active": true
+              }
+            }
+          ],
+          "schedules": [
+            {
+              "timezone": "America/Los_Angeles",
+              "daysOfWeek": [
+                1,
+                2,
+                3,
+                4,
+                5,
+                6,
+                7
+              ],
+              "startTime": "10:00",
+              "endTime": "22:00",
+              "startDate": null,
+              "endDate": null,
+              "isActive": true,
+              "scheduleType": "recurring",
+              "configuration": {
+                "name": "Daily Meal Availability",
+                "description": "Daily opening hours",
+                "image": "/images/american-menu/burger-meal.svg",
+                "externalId": "SCHEDULE-MEAL-001",
+                "priority": 0,
+                "delivery": true,
+                "takeaway": true,
+                "dineIn": true,
+                "website": true,
+                "app": true,
+                "override": false
+              }
+            }
+          ],
+          "pricing": [
+            {
+              "variantId": null,
+              "priceType": "delivery",
+              "currency": "USD",
+              "price": 19.49,
+              "comparePrice": 21.49,
+              "startAt": null,
+              "endAt": null,
+              "priority": 1,
+              "isActive": true,
+              "configuration": {
+                "type": "Fixed Price",
+                "website": true,
+                "app": true,
+                "discounts": true,
+                "discountEnabled": false,
+                "discountType": "Percentage",
+                "discountValue": 0,
+                "discountStart": null,
+                "discountEnd": null,
+                "timeEnabled": false,
+                "timePrice": 0,
+                "days": [
+                  1,
+                  2,
+                  3,
+                  4,
+                  5,
+                  6,
+                  7
+                ],
+                "start": "00:00",
+                "end": "23:59"
+              }
+            }
+          ],
+          "modifier-links": [
+            {
+              "modifierGroupId": "@new:burger-extras",
+              "variantId": null,
+              "isRequiredOverride": false,
+              "minSelectOverride": 0,
+              "maxSelectOverride": 2,
+              "displayOrder": 0,
+              "conditions": {},
+              "configuration": {}
+            }
+          ],
+          "combo-groups": [
+            {
+              "groupName": "Included Meal Items",
+              "externalGroupId": "COMBO-MEAL-001",
+              "selectionType": "fixed",
+              "minSelect": 2,
+              "maxSelect": 2,
+              "isRequired": true,
+              "displayOrder": 0,
+              "rules": {},
+              "configuration": {},
+              "children": {
+                "combo-options": [
+                  {
+                    "componentItemId": "@new:burger",
+                    "optionName": "Classic Cheeseburger",
+                    "externalOptionId": "COMBO-BURGER-001",
+                    "externalComponentItemId": "BURGER-001",
+                    "quantity": 1,
+                    "extraPrice": 0,
+                    "isDefault": true,
+                    "isAvailable": true,
+                    "displayOrder": 0,
+                    "configuration": {}
+                  },
+                  {
+                    "componentItemId": "@new:fries",
+                    "optionName": "Regular French Fries",
+                    "externalOptionId": "COMBO-FRIES-001",
+                    "externalComponentItemId": "FRIES-001",
+                    "quantity": 1,
+                    "extraPrice": 0,
+                    "isDefault": true,
+                    "isAvailable": true,
+                    "displayOrder": 1,
+                    "configuration": {}
+                  }
+                ]
+              }
+            }
+          ],
+          "seo-meta": [
+            {
+              "targetType": "item",
+              "pageName": "Classic Cheeseburger Meal",
+              "slug": "/item/classic-cheeseburger-meal",
+              "title": "Classic Cheeseburger Meal",
+              "description": "Order a classic cheeseburger with French fries.",
+              "keywords": "cheeseburger, burger meal, fries",
+              "canonicalUrl": null,
+              "imageUrl": "/images/american-menu/burger-meal.svg",
+              "isActive": true,
+              "configuration": {}
+            }
+          ]
+        }
+      }
+    }
+  ]
+}
+
+
+

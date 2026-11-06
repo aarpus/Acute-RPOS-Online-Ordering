@@ -1,0 +1,21 @@
+.admin-shell { --admin-sidebar-width:132px; }
+.admin-sidebar {
+  width:var(--admin-sidebar-width);
+  background:linear-gradient(100deg,#07396f,#003262);
+  font-family:Arial,Helvetica,sans-serif;
+}
+.admin-sidebar nav { margin-top:4px; }
+.admin-sidebar nav > button {
+  min-height:72px;
+  font-size:12px;
+  font-weight:400;
+  gap:7px;
+}
+.admin-sidebar nav > button svg { width:23px; height:23px; }
+.admin-sidebar nav > button[aria-current="page"] { color:#ffc400; background:#064b91; }
+@media(min-width:1024px) {
+  .admin-shell-content { padding-left:var(--admin-sidebar-width); }
+}
+@media(min-width:1450px) {
+  .admin-shell { --admin-sidebar-width:138px; }
+}

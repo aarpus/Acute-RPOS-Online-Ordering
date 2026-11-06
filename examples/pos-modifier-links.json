@@ -1,0 +1,15 @@
+{
+  "request_id": "modifier-links-001",
+  "modifier_links": [
+    {
+      "external_item_id": "ITEM-BURGER",
+      "external_group_id": "GRP-ADDONS",
+      "external_variant_id": "",
+      "is_required_override": false,
+      "min_select_override": 0,
+      "max_select_override": 2,
+      "display_order": 1,
+      "allowed_external_option_ids": ["OPT-EXTRA-CHEESE"]
+    }
+  ]
+}

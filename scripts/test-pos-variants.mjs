@@ -1,0 +1,120 @@
+// Actual route/authentication and PostgreSQL tests; only unique fixtures are removed.
+import assert from 'node:assert/strict';
+import { readFileSync } from 'node:fs';
+import { resolve, dirname } from 'node:path';
+import { createRequire, stripTypeScriptTypes } from 'node:module';
+import { randomUUID } from 'node:crypto';
+const require = createRequire(import.meta.url), cache = new Map();
+function load(file) {
+  file = resolve(file); if (cache.has(file)) return cache.get(file).exports;
+  const module = { exports: {} }; cache.set(file, module);
+  let source = stripTypeScriptTypes(readFileSync(file, 'utf8'), { mode: 'transform' });
+  const names = [...source.matchAll(/export (?:async )?(?:function|class|const|let) (\w+)/g)].map(match => match[1]);
+  source = source.replace(/^import \{([\s\S]*?)\} from ['"](.*?)['"];$/gm, (_, fields, name) => `const {${fields.replace(/ as /g, ': ')}} = require('${name}');`).replace(/^export \{(.*?)\} from ['"](.*?)['"];$/gm, (_, fields, name) => `Object.assign(exports, require('${name}'));`).replace(/^export /gm, '');
+  source += `\nObject.assign(exports, {${names.join(',')}});`;
+  new Function('require', 'exports', source)(name => name === 'cloudflare:workers' ? { env: process.env } : name.startsWith('.') ? load(resolve(dirname(file), name + '.ts')) : require(name), module.exports);
+  return module.exports;
+}
+const { createPrismaClient } = load('lib/prisma.ts');
+const { hashPosToken } = load('lib/pos-credentials.ts');
+const { POST } = load('app/api/pos/stores/[store_code]/variants/sync/route.ts');
+const { POST: categoryPost } = load('app/api/pos/stores/[store_code]/categories/sync/route.ts');
+const { POST: itemPost } = load('app/api/pos/stores/[store_code]/items/sync/route.ts');
+const { POST: comboPost } = load('app/api/pos/stores/[store_code]/combo-items/sync/route.ts');
+const db = createPrismaClient(), tag = randomUUID().slice(0, 8);
+const storeA = `QA_VAR_A_${tag}`, storeB = `QA_VAR_B_${tag}`;
+const tokenA = `pos_${randomUUID()}_${tag}`, tokenB = `pos_${randomUUID()}_${tag}`;
+const variant = { external_item_id: 'ITEM-BURGER', external_variant_id: 'VAR-LARGE', name: 'Large', price: 12.99, compare_price: 14.99, sku: 'LARGE', is_default: true, is_available: true, display_order: 1 };
+const context = store => ({ params: Promise.resolve({ store_code: store }) });
+const request = (body, store = storeA, token = tokenA) => new Request(`https://example.test/api/pos/stores/${store}/variants/sync`, { method: 'POST', headers: { 'content-type': 'application/json', authorization: `Bearer ${token}` }, body: JSON.stringify(body) });
+let checks = 0;
+async function send(id, variants = [variant], options = {}) {
+  const store = options.store ?? storeA;
+  const response = await POST(request({ request_id: id, variants, ...options.body }, store, options.token ?? tokenA), context(store));
+  return { response, body: await response.json() };
+}
+async function expect(id, variants, status, options) {
+  const value = await send(id, variants, options); assert.equal(value.response.status, status, JSON.stringify(value.body)); checks++; return value;
+}
+const get = externalVariantId => db.menuItemVariant.findUnique({ where: { storeCode_externalVariantId: { storeCode: storeA, externalVariantId } } });
+try {
+  await db.store.createMany({ data: [storeA, storeB].map(store_code => ({ store_code, storename: store_code, company_code: `QA_${tag}`, created_by: 0, is_active: true, is_delete: false })) });
+  await db.posApiCredential.createMany({ data: [{ storeCode: storeA, tokenHash: hashPosToken(tokenA) }, { storeCode: storeB, tokenHash: hashPosToken(tokenB) }] });
+  await expect('missing-parent', [variant], 409);
+  assert.equal((await categoryPost(request({ request_id: 'setup', categories: [{ external_category_id: 'CAT', category_name: 'Category' }] }), context(storeA))).status, 200);
+  assert.equal((await itemPost(request({ request_id: 'setup', items: [{ external_item_id: 'ITEM-BURGER', item_name: 'Burger', base_price: 10, external_category_ids: ['CAT'] }] }), context(storeA))).status, 200);
+  assert.equal((await comboPost(request({ request_id: 'setup', combo_items: [{ external_item_id: 'COMBO', item_name: 'Meal', base_price: 20, external_category_ids: ['CAT'] }] }), context(storeA))).status, 200);
+  const parent = await db.menuItem.findUnique({ where: { storeCode_externalItemId: { storeCode: storeA, externalItemId: 'ITEM-BURGER' } } });
+  const sample = JSON.parse(readFileSync('examples/pos-variants.json', 'utf8')).variants[0];
+  const created = await expect('create', [{ ...sample, external_variant_id: 'VAR-LARGE' }, { ...variant, external_variant_id: 'VAR-SMALL', name: 'Small', price: 8, is_default: false }], 200);
+  assert.equal(created.body.inserted_count, 2); assert.equal(created.body.updated_count, 0);
+  const original = await get('VAR-LARGE'); assert.equal(original.sourceType, 'pos'); assert.equal(original.menuItemId, parent.id); assert.equal(original.inventoryQuantity, null);
+  const stock = await db.menuItemInventory.create({ data: { storeCode: storeA, menuItemId: parent.id, variantId: original.id, trackInventory: true, quantityAvailable: 10 } });
+  const price = await db.menuItemPrice.create({ data: { storeCode: storeA, menuItemId: parent.id, variantId: original.id, currency: 'USD', priceType: 'variant', price: 12.99 } });
+  const group = await db.menuModifierGroup.create({ data: { storeCode: storeA, name: 'Modifiers' } });
+  const link = await db.menuItemModifierGroup.create({ data: { storeCode: storeA, menuItemId: parent.id, variantId: original.id, modifierGroupId: group.id } });
+  const update = await expect('update', [{ external_item_id: 'ITEM-BURGER', external_variant_id: 'VAR-LARGE', name: 'Large', price: 13.99 }], 200);
+  assert.equal(update.body.updated_count, 1); const current = await get('VAR-LARGE');
+  assert.equal(current.id, original.id); assert.equal(current.sku, 'BURGER-LARGE'); assert.equal(current.isDefault, true); assert.equal(Number(current.comparePrice), 14.99);
+  assert.deepEqual(current.configuration, sample.configuration);
+  for (const [model, row] of [['menuItemInventory', stock], ['menuItemPrice', price], ['menuItemModifierGroup', link]]) assert.equal((await db[model].findUnique({ where: { id: row.id } })).variantId, original.id);
+  const replay = await expect('update', [variant], 200); assert.deepEqual(replay.body, update.body); assert.equal(replay.response.headers.get('X-POS-Replayed'), 'true'); assert.equal(Number((await get('VAR-LARGE')).price), 13.99);
+  await expect('switch-default', [{ ...variant, external_variant_id: 'VAR-SMALL', name: 'Small' }], 200);
+  assert.equal((await get('VAR-LARGE')).isDefault, false); assert.equal((await get('VAR-SMALL')).isDefault, true);
+  await expect('two-defaults', [variant, { ...variant, external_variant_id: 'VAR-SMALL', name: 'Small' }], 400);
+  assert.equal((await get('VAR-SMALL')).isDefault, true);
+  await expect('name-collision', [{ ...variant, external_variant_id: 'VAR-OTHER', name: ' large ', is_default: false }], 409);
+  await expect('swap-names', [{ ...variant, name: 'Small', is_default: false }, { ...variant, external_variant_id: 'VAR-SMALL', name: 'Large', is_default: true }], 200);
+  assert.equal((await get('VAR-LARGE')).name, 'Small');
+  await expect('move-parent', [{ ...variant, external_item_id: 'COMBO' }], 409);
+  await expect('combo', [{ ...variant, external_item_id: 'COMBO', external_variant_id: 'COMBO-LARGE', name: 'Large Meal' }], 200);
+  const combo = await get('COMBO-LARGE'); assert.notEqual(combo.menuItemId, parent.id);
+  const comboParent = await db.menuItem.findUnique({ where: { id: combo.menuItemId } }); assert.equal(comboParent.itemType, 'combo');
+  await expect('blank-optionals', [{ external_item_id: 'ITEM-BURGER', external_variant_id: 'BLANK', name: 'Blank Fields', price: 0, sku: '', compare_price: '', is_default: '', is_available: '', display_order: '', metadata: '', configuration: '' }], 200);
+  assert.equal(Number((await get('BLANK')).price), 0); assert.equal((await get('BLANK')).isAvailable, true); assert.equal((await get('BLANK')).isDefault, false);
+  await expect('blank-update', [{ external_item_id: 'ITEM-BURGER', external_variant_id: 'BLANK', name: 'Blank Fields', price: '', is_available: '', display_order: '', sku: '', metadata: null, configuration: null }], 200);
+  assert.equal(Number((await get('BLANK')).price), 0);
+  const invalid = [{ external_item_id: '' }, { external_variant_id: '' }, { name: '' }, { price: -1 }, { price: '5' }, { price: 1.001 }, { price: null }, { price: 10000000000 }, { compare_price: -1 }, { is_default: 'yes' }, { is_available: 1 }, { display_order: -1 }, { display_order: 1.5 }, { display_order: 2147483648 }, { metadata: [] }, { configuration: [] }, { configuration: { group: ['Size'] } }, { configuration: { image: 'javascript:alert(1)' } }, { inventory_quantity: 10 }];
+  for (let i = 0; i < invalid.length; i++) await expect('invalid-' + i, [{ ...variant, ...invalid[i] }], 400);
+  await expect('empty', [], 400); await expect('not-array', variant, 400); await expect('duplicates', [variant, variant], 400);
+  await expect('no-price', [{ external_item_id: 'ITEM-BURGER', external_variant_id: 'NO-PRICE', name: 'No price', price: '' }], 400);
+  await expect('no-request', [variant], 400, { body: { request_id: '' } });
+  await expect('missing-auth', [variant], 401, { token: '' }); await expect('invalid-auth', [variant], 401, { token: 'x'.repeat(40) });
+  await expect('wrong-store', [variant], 403, { store: storeB }); await expect('body-mismatch', [variant], 403, { body: { store_code: storeB } });
+  await expect('body-only', [variant], 400, { store: '', body: { store_code: storeA } });
+  await expect('foreign-parent', [variant], 409, { store: storeB, token: tokenB });
+  await db.menuItem.create({ data: { storeCode: storeB, externalItemId: 'ITEM-BURGER', itemName: 'Other Burger', sourceType: 'pos', syncEnabled: true } });
+  await expect('other-store', [variant], 200, { store: storeB, token: tokenB }); assert.equal((await get('VAR-LARGE')).name, 'Small');
+  await db.menuItemVariant.create({ data: { storeCode: storeA, menuItemId: parent.id, externalVariantId: 'MANUAL', name: 'Manual' } });
+  await expect('rollback', [{ ...variant, external_variant_id: 'ROLLBACK', name: 'Roll back', is_default: false }, { ...variant, external_variant_id: 'MANUAL', name: 'Manual' }], 409);
+  assert.equal(await get('ROLLBACK'), null);
+  assert.equal((await db.posSyncLog.findUnique({ where: { storeCode_syncType_requestId: { storeCode: storeA, syncType: 'MENU_VARIANT', requestId: 'rollback' } } })).syncStatus, 'FAILED');
+  await expect('rollback', [{ ...variant, external_variant_id: 'RETRY', name: 'Retry', is_default: false }], 200);
+  await db.menuItemVariant.update({ where: { id: original.id }, data: { archivedAt: new Date() } }); await expect('archived', [variant], 409);
+  await db.menuItemVariant.update({ where: { id: original.id }, data: { archivedAt: null } });
+  await db.menuItem.update({ where: { id: parent.id }, data: { syncEnabled: false } }); await expect('parent-disabled', [variant], 409);
+  await db.menuItem.update({ where: { id: parent.id }, data: { syncEnabled: true, archivedAt: new Date() } }); await expect('parent-archived', [variant], 409);
+  await db.menuItem.update({ where: { id: parent.id }, data: { archivedAt: null, sourceType: 'manual' } }); await expect('parent-manual', [variant], 409);
+  await db.menuItem.update({ where: { id: parent.id }, data: { sourceType: 'pos' } });
+  // An old POS default without an external ID must also be cleared safely.
+  await db.menuItemVariant.updateMany({ where: { storeCode: storeA, menuItemId: parent.id }, data: { isDefault: false } });
+  const unnamedDefault = await db.menuItemVariant.create({ data: { storeCode: storeA, menuItemId: parent.id, name: 'Old POS Default', sourceType: 'pos', isDefault: true } });
+  await expect('null-id-default', [{ ...variant, external_variant_id: 'NEW-DEFAULT', name: 'New Default' }], 200);
+  assert.equal((await db.menuItemVariant.findUnique({ where: { id: unnamedDefault.id } })).isDefault, false);
+  await db.menuItemVariant.updateMany({ where: { storeCode: storeA, menuItemId: parent.id }, data: { isDefault: false } });
+  const manual = await get('MANUAL'); await db.menuItemVariant.update({ where: { id: manual.id }, data: { isDefault: true } });
+  await expect('manual-default', [{ ...variant, name: 'Small' }], 409); assert.equal((await get('MANUAL')).isDefault, true);
+  await db.menuItemVariant.update({ where: { id: manual.id }, data: { isDefault: false } });
+  const large = await expect('large', Array.from({ length: 101 }, (_, i) => ({ ...variant, external_variant_id: 'L' + i, name: 'Option ' + i, is_default: false })), 200);
+  assert.equal(large.body.inserted_count, 101);
+  const concurrent = await Promise.all([send('concurrent', [{ ...variant, external_variant_id: 'CONCURRENT', name: 'Concurrent', is_default: false }]), send('concurrent', [{ ...variant, external_variant_id: 'CONCURRENT', name: 'Concurrent', is_default: false }])]);
+  for (const value of concurrent) assert.equal(value.response.status, 200, JSON.stringify(value.body)); assert.equal(concurrent.filter(value => value.response.headers.get('X-POS-Replayed') === 'true').length, 1);
+  assert.equal(await db.menuItemVariant.count({ where: { storeCode: storeA, externalVariantId: 'CONCURRENT' } }), 1);
+  await db.store.updateMany({ where: { store_code: storeA }, data: { is_active: false } }); await expect('inactive', [variant], 403);
+  await db.store.updateMany({ where: { store_code: storeA }, data: { is_active: true } });
+  await db.posApiCredential.update({ where: { storeCode: storeA }, data: { isActive: false } }); await expect('disabled-token', [variant], 401);
+  console.log(`Passed ${checks} Variant route checks plus PostgreSQL assertions: regular/combo dependencies, defaults, name swaps, parent/ownership protection, linked records, validation, blanks, 101-record batch, isolation and replay/concurrency.`);
+} finally {
+  for (const model of ['menuItemModifierGroup', 'menuItemPrice', 'menuItemInventory', 'menuItemVariant', 'menuModifierGroup', 'menuItemCategory', 'menuItem', 'menuCategory', 'posSyncLog', 'posApiCredential']) await db[model].deleteMany({ where: { storeCode: { in: [storeA, storeB] } } });
+  await db.store.deleteMany({ where: { store_code: { in: [storeA, storeB] } } }); await db.$disconnect();
+}

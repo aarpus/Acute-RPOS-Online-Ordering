@@ -1,0 +1,16 @@
+{
+  "request_id": "modifier-groups-20261105-001",
+  "modifier_groups": [
+    {
+      "external_group_id": "GRP-ADDONS",
+      "name": "Extra Add-ons",
+      "description": "Choose extra toppings",
+      "selection_type": "multiple",
+      "min_select": 0,
+      "max_select": 3,
+      "allow_option_quantity": true,
+      "display_order": 1,
+      "is_active": true
+    }
+  ]
+}

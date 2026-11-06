@@ -1,0 +1,1 @@
+ALTER TABLE public.tbl_store ADD COLUMN IF NOT EXISTS storetime VARCHAR(200);

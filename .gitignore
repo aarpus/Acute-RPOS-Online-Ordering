@@ -1,0 +1,15 @@
+node_modules
+.local-backups/
+.env*
+!.env.example
+.next
+next-env.d.ts
+/dist/
+.vinext/
+.cloudflare/
+
+# wrangler files
+.wrangler
+.dev.vars*
+!.dev.vars.example
+!.env.example

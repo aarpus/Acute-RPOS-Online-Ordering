@@ -1,0 +1,4 @@
+'use client';
+import { useRouter } from 'next/navigation';
+import AdminShell from './AdminShell';
+export default function AdminPlaceholder({ active, title }: { active: string; title: string }) { const router=useRouter(); async function signOut(){await fetch('/api/admin/logout',{method:'POST'});router.replace('/admin/login')} return <AdminShell active={active} pageTitle={title} pageSubtitle="This workspace is ready for your operational tools." onSignOut={signOut}><div className="p-5 sm:p-8"><div className="rounded-xl border border-slate-200 bg-white p-10 text-center shadow-sm"><h2 className="text-lg font-bold text-[#183f70]">{title}</h2><p className="mt-2 text-sm text-slate-500">This section is available as a consistent placeholder while its business workflow is defined.</p></div></div></AdminShell>; }

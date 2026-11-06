@@ -1,0 +1,20 @@
+{
+  "request_id": "modifier-options-001",
+  "modifier_options": [
+    {
+      "external_group_id": "GRP-ADDONS",
+      "external_option_id": "OPT-EXTRA-CHEESE",
+      "name": "Extra Cheese",
+      "price": 1.5,
+      "is_default": false,
+      "is_available": true,
+      "min_quantity": 0,
+      "max_quantity": 2,
+      "display_order": 1,
+      "linked_external_item_id": "",
+      "configuration": {
+        "image": "/images/category-0.jpg"
+      }
+    }
+  ]
+}

@@ -1,0 +1,20 @@
+{
+  "request_id": "variants-001",
+  "variants": [
+    {
+      "external_item_id": "ITEM-BURGER",
+      "external_variant_id": "VAR-BURGER-LARGE",
+      "name": "Large",
+      "sku": "BURGER-LARGE",
+      "price": 12.99,
+      "compare_price": 14.99,
+      "is_default": true,
+      "is_available": true,
+      "display_order": 1,
+      "configuration": {
+        "group": "Size",
+        "image": "/images/burger-large.jpg"
+      }
+    }
+  ]
+}

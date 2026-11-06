@@ -1,0 +1,19 @@
+{
+  "request_id": "tax-rules-20261103-001",
+  "tax_rules": [
+    {
+      "external_tax_id": "TAX-SALES",
+      "name": "Sales Tax",
+      "rate_percent": 8.25,
+      "price_includes_tax": false,
+      "is_active": true
+    },
+    {
+      "external_tax_id": "TAX-FOOD",
+      "name": "Food Tax",
+      "rate_percent": 5,
+      "price_includes_tax": false,
+      "is_active": true
+    }
+  ]
+}

@@ -1,0 +1,16 @@
+{
+  "request_id": "combo-options-001",
+  "combo_options": [
+    {
+      "external_group_id": "COMBO-GRP-DRINKS",
+      "external_option_id": "COMBO-OPT-COLA",
+      "external_component_item_id": "ITEM-COLA",
+      "option_name": "Cola",
+      "quantity": 1,
+      "extra_price": 0,
+      "is_default": true,
+      "is_available": true,
+      "display_order": 1
+    }
+  ]
+}
