@@ -17,6 +17,10 @@
 .mw-button.mw-primary:hover { background:#0046dd; }
 .mw-button.mw-outline { color:var(--mw-blue); border-color:var(--mw-blue); }
 .mw-heading-actions .mw-button { min-height:47px; font-weight:600; padding:10px 18px; }
+.mw-menu-controls { display:grid; gap:10px; margin-bottom:18px; }
+.menu-design .mw-menu-controls .mw-navigation { margin-bottom:0; }
+.mw-store-picker { display:flex; align-items:center; gap:10px; width:max-content; max-width:100%; color:var(--mw-muted); font-size:12px; font-weight:700; }
+.mw-store-picker select { width:min(360px, calc(100vw - 120px)); min-height:37px; border:1px solid var(--mw-border); border-radius:4px; background:#fff; padding:8px 11px; color:#283576; font-size:13px; }
 .mw-navigation { display:flex; justify-content:space-between; background:#fff; border-radius:6px; border:1px solid #edf3fc; box-shadow:0 1px 1px #dce6f5; margin-bottom:18px; overflow-x:auto; }
 .mw-navigation a { display:flex; align-items:center; justify-content:center; gap:10px; padding:17px 15px; border-bottom:3px solid transparent; font-size:12px; white-space:nowrap; }
 .mw-navigation a:hover { background:#f6f9ff; }

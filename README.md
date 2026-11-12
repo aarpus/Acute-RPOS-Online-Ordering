@@ -2,6 +2,10 @@
 
 Your original Vinext + Cloudflare setup, with simple Tailwind components for home, product customization, cart, scheduling, checkout, payment preview, confirmation and tracking.
 
+Cloudflare deployment configuration, audit results, environment requirements and
+remaining commands: [DEPLOYMENT-AUDIT.md](DEPLOYMENT-AUDIT.md). The active workflow
+uses `vite` and Wrangler; `cloudflare.config.ts` is retained as a legacy reference.
+
 Read UPDATE-GUIDE.md for copying this update, and START-HERE.md for the code workflow.
 
 ```sh
@@ -18,9 +22,12 @@ selection, contact details or payment. Login and registration return to the
 requested checkout step and preserve the selected store and browser-tab cart.
 Order submission also verifies the signed customer session for that store.
 
-Email verification uses the configured SMTP server. It requires server-side `DATABASE_URL`, `EMAIL_VERIFICATION_SECRET` (at least 32 characters), `SMTP_HOST`, `SMTP_PORT`, `SMTP_SECURE`, `SMTP_FROM`, `SMTP_USER`, and `SMTP_PASSWORD`. For local Worker development, copy `.dev.vars.example` to `.dev.vars` and set the SMTP credentials, database URL, and verification secret there. Put the non-secret SMTP settings in `.env`. These files are local-only; never put credentials in browser code or source control. For Cloudflare deployment, configure the SMTP credentials, database URL, and verification secret as Worker secrets and the remaining SMTP settings as Worker variables. Verification state is kept in a signed, HTTP-only cookie; no email-verification database table is used.
+Email verification uses the configured SMTP server. It requires a database connection, `EMAIL_VERIFICATION_SECRET` (at least 32 characters), `SMTP_HOST`, `SMTP_PORT`, `SMTP_SECURE`, `SMTP_FROM`, `SMTP_USER`, and `SMTP_PASSWORD`. For local Worker development, copy `.dev.vars.example` to `.dev.vars` and set the SMTP credentials, database URL, and verification secret there; set the local `DATABASE_URL` and non-secret SMTP settings in `.env` as well. These files are local-only; never put credentials in browser code or source control. Production database access requires `HYPERDRIVE`; a direct `DATABASE_URL` is not used in production. Configure the SMTP credentials and verification secret as Worker secrets and the remaining SMTP settings as Worker variables. Verification state is kept in a signed, HTTP-only cookie; no email-verification database table is used.
 
-Run the development server with `npm run dev` so Vinext loads `.env` for server-side API routes. Restart the server after changing environment variables. Direct `vite dev` does not preload `.env` into `process.env`.
+Run the development server with `npm run dev`. The Vite configuration loads local
+settings from `.env`, and Wrangler loads secrets from `.dev.vars`. The local
+Hyperdrive emulator connects to the local `DATABASE_URL`; this URL is never put
+in the production Wrangler config. Restart after changing environment variables.
 
 Store details and codes are saved in the database through Admin > Stores. The frontend dropdown lists active, non-deleted database stores and defaults to the first store by ID. Store selection and details come from the database; no store environment setting is required. Store codes must be unique. Store contact details come from the database. Frontend API requests send x-store-code and the server validates that selection. Authentication and verification remain scoped to that code; cart, checkout, account drafts and demo order history are stored separately per store in browser storage. Menu products, prices, variants, modifiers, combos, stock and item schedules now come from the menu database. Payments and completed order storage remain demos; see MENU-DATABASE.md. Admin login uses the database admin record and does not require a store setting. Admin email addresses must be unambiguous across admin records. To seed the initial admin before adding stores, run `npm run db:seed:admin -- <code>` with its store/company code.
 

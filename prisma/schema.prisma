@@ -464,6 +464,7 @@ model MenuCategory {
   @@unique([storeCode, id])
   @@unique([storeCode, externalCategoryId])
   @@index([storeCode, isVisible, displayOrder])
+  @@index([storeCode, archivedAt], map: "menu_categories_archive_idx")
   @@map("menu_categories")
 }
 
@@ -520,6 +521,7 @@ model MenuItem {
   @@index([storeCode, taxRuleId])
   @@index([storeCode, isVisible, isAvailable, displayOrder])
   @@index([storeCode, sku])
+  @@index([storeCode, archivedAt], map: "menu_items_archive_idx")
   @@map("menu_items")
 }
 
@@ -568,6 +570,7 @@ model MenuItemVariant {
   @@unique([storeCode, menuItemId, id])
   @@index([storeCode, menuItemId])
   @@index([storeCode, menuItemId, isAvailable, displayOrder])
+  @@index([storeCode, archivedAt], map: "menu_item_variants_archive_idx")
   @@map("menu_item_variants")
 }
 
@@ -595,6 +598,7 @@ model MenuModifierGroup {
   @@unique([storeCode, id])
   @@unique([storeCode, externalGroupId])
   @@index([storeCode, isActive, displayOrder])
+  @@index([storeCode, archivedAt], map: "menu_modifier_groups_archive_idx")
   @@map("menu_modifier_groups")
 }
 
@@ -625,6 +629,7 @@ model MenuModifierOption {
   @@index([storeCode, modifierGroupId])
   @@index([storeCode, linkedItemId])
   @@index([storeCode, modifierGroupId, isAvailable, displayOrder])
+  @@index([storeCode, archivedAt], map: "menu_modifier_options_archive_idx")
   @@map("menu_modifier_options")
 }
 
@@ -651,6 +656,7 @@ model MenuItemModifierGroup {
   @@index([storeCode, menuItemId])
   @@index([storeCode, modifierGroupId])
   @@index([storeCode, menuItemId, variantId])
+  @@index([storeCode, archivedAt], map: "menu_item_modifier_groups_archive_idx")
   @@map("menu_item_modifier_groups")
 }
 
@@ -678,6 +684,7 @@ model MenuComboGroup {
   @@unique([storeCode, externalGroupId])
   @@index([storeCode, comboItemId])
   @@index([storeCode, comboItemId, displayOrder])
+  @@index([storeCode, archivedAt], map: "menu_combo_groups_archive_idx")
   @@map("menu_combo_groups")
 }
 
@@ -707,6 +714,7 @@ model MenuComboOption {
   @@index([storeCode, comboGroupId])
   @@index([storeCode, componentItemId])
   @@index([storeCode, comboGroupId, isAvailable, displayOrder])
+  @@index([storeCode, archivedAt], map: "menu_combo_options_archive_idx")
   @@map("menu_combo_options")
 }
 
@@ -728,6 +736,7 @@ model MenuTaxRule {
   @@unique([storeCode, id])
   @@unique([storeCode, externalTaxId])
   @@index([storeCode, isActive])
+  @@index([storeCode, archivedAt], map: "menu_tax_rules_archive_idx")
   @@map("menu_tax_rules")
 }
 
@@ -753,6 +762,7 @@ model MenuItemInventory {
   @@index([storeCode, menuItemId])
   @@index([storeCode, menuItemId, variantId])
   @@index([storeCode, stockStatus])
+  @@index([storeCode, archivedAt], map: "menu_item_inventory_archive_idx")
   @@map("menu_item_inventory")
 }
 
@@ -777,6 +787,7 @@ model MenuItemSchedule {
   @@unique([storeCode, id])
   @@index([storeCode, menuItemId])
   @@index([storeCode, menuItemId, isActive])
+  @@index([storeCode, archivedAt], map: "menu_item_schedules_archive_idx")
   @@map("menu_item_schedules")
 }
 
@@ -815,6 +826,7 @@ model MenuOffer {
   @@unique([storeCode, externalOfferId])
   @@unique([storeCode, offerCode])
   @@index([storeCode, isActive, startAt, endAt])
+  @@index([storeCode, archivedAt], map: "menu_offers_archive_idx")
   @@map("menu_offers")
 }
 
@@ -865,6 +877,7 @@ model MenuItemPrice {
   @@index([storeCode, menuItemId])
   @@index([storeCode, menuItemId, variantId])
   @@index([storeCode, menuItemId, priceType, currency, isActive])
+  @@index([storeCode, archivedAt], map: "menu_item_prices_archive_idx")
   @@map("menu_item_prices")
 }
 
@@ -889,6 +902,7 @@ model MenuItemImage {
   @@unique([storeCode, externalImageId])
   @@index([storeCode, menuItemId])
   @@index([storeCode, menuItemId, isActive, displayOrder])
+  @@index([storeCode, archivedAt], map: "menu_item_images_archive_idx")
   @@map("menu_item_images")
 }
 

@@ -27,7 +27,6 @@ export function envText(value: unknown) {
 
 export function getAuthConfig() {
   const secret = envText(workerEnv.EMAIL_VERIFICATION_SECRET) || envText(process.env.EMAIL_VERIFICATION_SECRET);
-  if (!envText(workerEnv.DATABASE_URL) && !envText(process.env.DATABASE_URL)) throw new Error('DATABASE_URL');
   if (!secret || secret.length < 32) throw new Error('EMAIL_VERIFICATION_SECRET');
   return { secret };
 }

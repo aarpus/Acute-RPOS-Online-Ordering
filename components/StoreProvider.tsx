@@ -1,6 +1,6 @@
 'use client';
 
-import { createContext, useCallback, useContext, useEffect, useState } from 'react';
+import { createContext, useCallback, useContext, useEffect, useRef, useState } from 'react';
 import Link from 'next/link';
 import { usePathname, useRouter } from 'next/navigation';
 import type { getStorefront } from '../lib/storefront';
@@ -26,11 +26,16 @@ function useStoreState(initialData: StorefrontData) {
   const [ready, setReady] = useState(false);
   const [cart, setCart] = useState<CartItem[]>([]);
   const [mode, setMode] = useState('Delivery');
+  // The parent already fetched the initial Delivery catalog. Fetch again only
+  // when the order mode needs different availability/pricing.
+  const loadedCatalog = useRef({ initialData, mode: 'Delivery' });
   useEffect(() => {
+    if (loadedCatalog.current.initialData !== initialData) loadedCatalog.current = { initialData, mode: 'Delivery' };
+    if (loadedCatalog.current.mode === mode) return;
     const controller = new AbortController();
-    fetch('/api/home', { cache: 'no-store', signal: controller.signal, headers: { 'x-store-code': storeCode, 'x-order-mode': mode } }).then(async response => { if (response.ok) { const fresh = await response.json() as StorefrontData; if (!controller.signal.aborted) setData(fresh); } }).catch(() => {});
+    fetch('/api/home', { cache: 'no-store', signal: controller.signal, headers: { 'x-store-code': storeCode, 'x-order-mode': mode } }).then(async response => { if (response.ok) { const fresh = await response.json() as StorefrontData; if (!controller.signal.aborted) { loadedCatalog.current = { initialData, mode }; setData(fresh); } } }).catch(() => {});
     return () => controller.abort();
-  }, [mode, initialData]);
+  }, [mode, initialData, storeCode]);
   const [schedule, setSchedule] = useState<Schedule>(emptySchedule);
   const [customer, setCustomer] = useState<Customer>(emptyCustomer);
   const [customerUserId, setCustomerUserId] = useState('');

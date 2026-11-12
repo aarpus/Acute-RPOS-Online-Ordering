@@ -1,10 +1,8 @@
 declare namespace Cloudflare {
   interface Env {
-    DATABASE_URL: string;
-    BRANDING_IMAGES?: {
-      put(key: string, value: Uint8Array, options: { httpMetadata: { contentType: string } }): Promise<unknown>;
-      get(key: string): Promise<{ body: ReadableStream; httpMetadata?: { contentType?: string } } | null>;
-    };
+    // Optional until an actual branding bucket is configured. Runtime bindings
+    // such as HYPERDRIVE and ASSETS come from worker-configuration.d.ts.
+    BRANDING_IMAGES?: R2Bucket;
     EMAIL_VERIFICATION_SECRET: string;
     COMPANY_CODE: string;
     ADMIN_USER_ID: string;

@@ -1,3 +1,5 @@
+// Legacy cf CLI reference only. Active commands explicitly use Vite + Wrangler.
+// Keep this file and its backup until the migration has been verified in production.
 import { bindings, defineConfig, defineWorker } from "cf/config";
 import { loadEnv } from "vite";
 

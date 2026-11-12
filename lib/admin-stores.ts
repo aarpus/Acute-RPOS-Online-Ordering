@@ -123,6 +123,21 @@ export async function findStore(storeId: string, companyCode: string) {
   } finally { await prisma.$disconnect(); }
 }
 
+export async function storeCodeExists(storeCode: string, excludeStoreId?: string) {
+  const prisma = createPrismaClient();
+  try {
+    const excludeStore = excludeStoreId ? Prisma.sql`AND storeid <> ${excludeStoreId}::bigint` : Prisma.empty;
+    const rows = await prisma.$queryRaw<{ storeid: string }[]>(Prisma.sql`
+      SELECT storeid::text AS storeid
+      FROM public.tbl_store
+      WHERE store_code = ${storeCode} AND COALESCE(is_delete, false) = false
+      ${excludeStore}
+      LIMIT 1
+    `);
+    return rows.length > 0;
+  } finally { await prisma.$disconnect(); }
+}
+
 export async function createStore(input: StoreInput, companyCode: string, userId: number) {
   const prisma = createPrismaClient();
   try {

@@ -71,18 +71,17 @@ async function getConfig(request: Request) {
     SMTP_USER,
     SMTP_PASSWORD,
   } = workerEnv;
-  const smtpHost = envText(SMTP_HOST);
-  const smtpPort = Number(envText(SMTP_PORT) || 587);
-  const smtpUser = envText(SMTP_USER);
-  const smtpPassword = envText(SMTP_PASSWORD);
-  const configuredFrom = envText(SMTP_FROM);
+  const smtpHost = envText(SMTP_HOST) || envText(process.env.SMTP_HOST);
+  const smtpPort = Number(envText(SMTP_PORT) || envText(process.env.SMTP_PORT) || 587);
+  const smtpUser = envText(SMTP_USER) || envText(process.env.SMTP_USER);
+  const smtpPassword = envText(SMTP_PASSWORD) || envText(process.env.SMTP_PASSWORD);
+  const configuredFrom = envText(SMTP_FROM) || envText(process.env.SMTP_FROM);
   const userEmail = smtpUser?.match(/<([^>]+)>/)?.[1] ?? smtpUser;
   const fromEmail = configuredFrom?.match(/<([^>]+)>/)?.[1] ?? configuredFrom;
   const fromAddress = configuredFrom && fromEmail && !fromEmail.includes('yourdomain.com')
     ? configuredFrom
     : userEmail;
   const invalid: string[] = [];
-  if (!workerEnv.DATABASE_URL?.trim()) invalid.push('DATABASE_URL');
   if (!verificationSecret || verificationSecret.length < 32) invalid.push('EMAIL_VERIFICATION_SECRET (minimum 32 characters)');
   if (!smtpHost) invalid.push('SMTP_HOST');
   if (!Number.isInteger(smtpPort) || smtpPort < 1 || smtpPort > 65535) invalid.push('SMTP_PORT');
@@ -99,7 +98,7 @@ async function getConfig(request: Request) {
     secret: verificationSecret,
     smtpHost,
     smtpPort,
-    smtpSecure: envText(SMTP_SECURE).toLowerCase() === 'true',
+    smtpSecure: (envText(SMTP_SECURE) || envText(process.env.SMTP_SECURE)).toLowerCase() === 'true',
     smtpUser,
     smtpPassword,
     smtpFrom: fromAddress,

@@ -83,7 +83,7 @@ export default function StoresPage({ mode = 'list' }: { mode?: 'list' | 'form' }
     return () => { cancelled = true; };
   }, [editingId, isForm]);
 
-  function change(name: string, value: string | boolean) { setForm((current) => ({ ...current, [name]: value })); setErrors((current) => ({ ...current, [name]: '' })); setNotice(''); }
+  function change(name: string, value: string | boolean) { setForm((current) => ({ ...current, [name]: value })); setErrors((current) => ({ ...current, [name]: '' })); setNotice(''); setError(''); }
   function cancel() { router.push('/admin/stores'); }
 
   async function submit(event: FormEvent<HTMLFormElement>) {

@@ -1,6 +1,6 @@
 import { NextResponse } from 'next/server';
 import { getAuthenticatedAdmin } from '../../../../../lib/admin-auth';
-import { findStore, getTrustedStoreContext, normalizeStoreInput, updateStore, validateStoreInput } from '../../../../../lib/admin-stores';
+import { findStore, getTrustedStoreContext, normalizeStoreInput, storeCodeExists, updateStore, validateStoreInput } from '../../../../../lib/admin-stores';
 
 type Context = { params: Promise<{ storeid: string }> };
 function validId(value: string) { return /^\d+$/.test(value) && value !== '0'; }
@@ -31,6 +31,10 @@ export async function PATCH(request: Request, context: Context) {
     const input = normalizeStoreInput(await request.json());
     const errors = validateStoreInput(input);
     if (Object.keys(errors).length) return NextResponse.json({ error: 'Validation failed.', fields: errors }, { status: 400 });
+    if (await storeCodeExists(input.store_code, storeid)) {
+      const message = 'Store Code already exists. Please use a different code.';
+      return NextResponse.json({ error: message, fields: { store_code: message } }, { status: 409 });
+    }
     const store = await updateStore(storeid, input, companyCode, userId);
     return store ? NextResponse.json({ store }) : NextResponse.json({ error: 'Store not found.' }, { status: 404 });
   } catch (error) {

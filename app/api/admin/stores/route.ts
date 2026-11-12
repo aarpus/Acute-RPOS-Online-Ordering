@@ -1,6 +1,6 @@
 import { NextResponse } from 'next/server';
 import { getAuthenticatedAdmin } from '../../../../lib/admin-auth';
-import { createStore, getTrustedStoreContext, listStores, normalizeStoreInput, validateStoreInput } from '../../../../lib/admin-stores';
+import { createStore, getTrustedStoreContext, listStores, normalizeStoreInput, storeCodeExists, validateStoreInput } from '../../../../lib/admin-stores';
 
 function configurationError(error: unknown) {
   return error instanceof Error && error.message === 'COMPANY_CODE_NOT_CONFIGURED';
@@ -27,6 +27,10 @@ export async function POST(request: Request) {
     const input = normalizeStoreInput(await request.json());
     const errors = validateStoreInput(input);
     if (Object.keys(errors).length) return NextResponse.json({ error: 'Validation failed.', fields: errors }, { status: 400 });
+    if (await storeCodeExists(input.store_code)) {
+      const message = 'Store Code already exists. Please use a different code.';
+      return NextResponse.json({ error: message, fields: { store_code: message } }, { status: 409 });
+    }
     return NextResponse.json({ store: await createStore(input, companyCode, userId) }, { status: 201 });
   } catch (error) {
     if (configurationError(error)) return NextResponse.json({ error: 'Store audit identity is not configured on the server.' }, { status: 503 });

@@ -1,6 +1,7 @@
 'use client';
 
 import { Children, cloneElement, isValidElement, useId, type ReactElement, type ReactNode } from 'react';
+import { usePathname, useRouter, useSearchParams } from 'next/navigation';
 import { menuScreenHref, menuSections } from '../../lib/admin-menu';
 import { useLegacyMenu } from './legacy-menu-client';
 
@@ -20,5 +21,11 @@ export function Field({ label, required, children, error }: { label: string; req
 
 export function MenuNavigation({ active, onChange }: { active: string; onChange: (section: string) => void }) {
  const menu = useLegacyMenu();
- return <nav className="mw-navigation" aria-label="Menu management">{menuSections.filter(section => menu.canCreate(section.view)).map(({ label: name }) => <a href={menuScreenHref(name) + (menu.storeCode ? '&store_code=' + encodeURIComponent(menu.storeCode) : '')} key={name} aria-current={active === name ? 'page' : undefined} className={active === name ? 'is-active' : ''} onClick={event => { if (event.button !== 0 || event.ctrlKey || event.metaKey || event.shiftKey || event.altKey) return; event.preventDefault(); onChange(name); }}><Icon name={name} />{name}</a>)}</nav>;
+ const pathname = usePathname(); const router = useRouter(); const params = useSearchParams();
+ return <div className="mw-menu-controls">
+  <label className="mw-store-picker"><span>Store</span><select aria-label="Select store for menu" value={menu.storeCode} onChange={event => { const next = new URLSearchParams(params.toString()); next.set('store_code', event.target.value); router.replace(`${pathname}?${next.toString()}`, { scroll: false }); }}>
+   {menu.stores.map(store => <option key={store.store_code} value={store.store_code}>{store.storename ? `${store.storename} (${store.store_code})` : store.store_code}</option>)}
+  </select></label>
+  <nav className="mw-navigation" aria-label="Menu management">{menuSections.filter(section => menu.canCreate(section.view)).map(({ label: name }) => <a href={menuScreenHref(name) + (menu.storeCode ? '&store_code=' + encodeURIComponent(menu.storeCode) : '')} key={name} aria-current={active === name ? 'page' : undefined} className={active === name ? 'is-active' : ''} onClick={event => { if (event.button !== 0 || event.ctrlKey || event.metaKey || event.shiftKey || event.altKey) return; event.preventDefault(); onChange(name); }}><Icon name={name} />{name}</a>)}</nav>
+ </div>;
 }

@@ -1,2 +1,3 @@
 import StoresPage from '../../../components/admin/StoresPage';
-export default function StoresRoute() { return <StoresPage />; }
+import { Suspense } from 'react';
+export default function StoresRoute() { return <Suspense fallback={null}><StoresPage /></Suspense>; }

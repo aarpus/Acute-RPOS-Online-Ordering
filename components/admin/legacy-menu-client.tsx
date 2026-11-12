@@ -5,10 +5,11 @@ import { canCreateMenuRecord } from '../../lib/menu-create-policy';
 import { archiveLegacy, blankLegacy, displayId, encodeLegacy, legacyRows, type LegacyRow, type MenuOperation, type MenuSnapshot } from '../../lib/menu-legacy-codec';
 
 type Context = {
-  snapshot: MenuSnapshot; storeCode: string; loading: boolean; error: string; ownRevision: number; mutationView: string; mutationBaselines: Record<number, string | undefined>;
+  snapshot: MenuSnapshot; storeCode: string; stores: StoreOption[]; loading: boolean; error: string; ownRevision: number; mutationView: string; mutationBaselines: Record<number, string | undefined>;
   commit: (view: string, before: LegacyRow[], after: LegacyRow[]) => Promise<boolean>; clearError: () => void;
   canCreate: (resource: string) => boolean;
 };
+type StoreOption = { store_code: string; storename: string | null };
 const MenuContext = createContext<Context | null>(null);
 export function useLegacyMenu() { const value = useContext(MenuContext); if (!value) throw new Error('Menu database context is missing.'); return value; }
 async function request<T>(url: string, init?: RequestInit): Promise<T> {
@@ -33,15 +34,34 @@ function resetCopyIdentity(value: unknown): void {
 
 export function OriginalMenuProvider({ children }: { children: ReactNode }) {
   const params = useSearchParams();
+  const requestedStoreCode = params.get('store_code') || '';
   const [snapshot, setSnapshot] = useState<MenuSnapshot>({});
   const [storeCode, setStoreCode] = useState(params.get('store_code') || '');
+  const [stores, setStores] = useState<StoreOption[]>([]);
+  const [storesLoaded, setStoresLoaded] = useState(false);
   const [loading, setLoading] = useState(true); const [busy, setBusy] = useState(false); const [error, setError] = useState('');
   const [createPolicy, setCreatePolicy] = useState<{ posEnabled: boolean; visibility: Record<string, boolean> } | null>(null);
   const [ownRevision, setOwnRevision] = useState(0); const [mutationView, setMutationView] = useState(''); const saving = useRef(false); const generation = useRef(0);
   const [mutationBaselines, setMutationBaselines] = useState<Record<number, string | undefined>>({});
-  useEffect(() => { if (storeCode) return; let cancelled = false; fetch('/api/admin/stores', { cache: 'no-store' }).then(async response => { const body = await response.json() as { stores?: { store_code: string }[]; error?: string }; if (!response.ok) throw new Error(body.error || 'Unable to load stores.'); if (!cancelled) { const code = body.stores?.find(row => row.store_code)?.store_code; if (!code) throw new Error('Create a store before adding its menu.'); setStoreCode(code); } }).catch(cause => { if (!cancelled) { setError(cause.message); setLoading(false); } }); return () => { cancelled = true; }; }, [storeCode]);
   useEffect(() => {
-    if (!storeCode) return;
+    let cancelled = false;
+    fetch('/api/admin/stores', { cache: 'no-store' }).then(async response => {
+      const body = await response.json() as { stores?: StoreOption[]; error?: string };
+      if (!response.ok) throw new Error(body.error || 'Unable to load stores.');
+      if (cancelled) return;
+      const options = (body.stores || []).filter(store => typeof store.store_code === 'string' && store.store_code.trim());
+      const selected = options.find(store => store.store_code === requestedStoreCode) || options[0];
+      setStores(options);
+      setStoreCode(selected?.store_code || '');
+      setStoresLoaded(true);
+      if (!selected) { setError('Create a store before adding its menu.'); setLoading(false); }
+    }).catch(cause => {
+      if (!cancelled) { setError(cause instanceof Error ? cause.message : 'Unable to load stores.'); setStoresLoaded(true); setLoading(false); }
+    });
+    return () => { cancelled = true; };
+  }, [requestedStoreCode]);
+  useEffect(() => {
+    if (!storesLoaded || !storeCode) return;
     const controller = new AbortController();
     const load = async (initial = false) => {
       if (saving.current) return;
@@ -53,7 +73,7 @@ export function OriginalMenuProvider({ children }: { children: ReactNode }) {
     };
     void load(true); const focus = () => { void load(); }; window.addEventListener('focus', focus);
     return () => { controller.abort(); window.removeEventListener('focus', focus); };
-  }, [storeCode]);
+  }, [storeCode, storesLoaded]);
 
   async function persistImages(value: unknown, cache = new Map<string, Promise<string>>()): Promise<unknown> {
     if (typeof value === 'string' && value.startsWith('data:image/')) {
@@ -91,7 +111,7 @@ export function OriginalMenuProvider({ children }: { children: ReactNode }) {
     } catch (cause) { setError(cause instanceof Error ? cause.message : 'Unable to save menu changes.'); return false; }
     finally { saving.current = false; setBusy(false); }
   }
-  return <MenuContext.Provider value={{ snapshot, storeCode, loading, error, ownRevision, mutationView, mutationBaselines, commit, canCreate: resource => !!createPolicy && canCreateMenuRecord(createPolicy.posEnabled, createPolicy.visibility, resource), clearError: () => setError('') }}><div style={{ display: 'contents' }} inert={busy || loading}>{children}</div></MenuContext.Provider>;
+  return <MenuContext.Provider value={{ snapshot, storeCode, stores, loading, error, ownRevision, mutationView, mutationBaselines, commit, canCreate: resource => !!createPolicy && canCreateMenuRecord(createPolicy.posEnabled, createPolicy.visibility, resource), clearError: () => setError('') }}><div style={{ display: 'contents' }} inert={busy || loading}>{children}</div></MenuContext.Provider>;
 }
 
 export function useLegacyCollection<T extends { id: number }>(view: string): [T[], (update: SetStateAction<T[]>) => Promise<boolean>] {

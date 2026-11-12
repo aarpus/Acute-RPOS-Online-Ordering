@@ -1,0 +1,12 @@
+{
+  "$schema": "node_modules/wrangler/config-schema.json",
+  "name": "rpos-online-ordering",
+  "compatibility_date": "2026-11-06",
+  "compatibility_flags": ["nodejs_compat"],
+   "hyperdrive": [
+    {
+      "binding": "HYPERDRIVE",
+      "id": "a9845ceea3d54b28a3dc3a9b7138feb3"
+    }
+  ]
+}
